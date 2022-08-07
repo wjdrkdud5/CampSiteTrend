@@ -1,0 +1,28 @@
+#chrome debug logging
+/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --enable-logging=stderr --v=1 2>&1 | tee -a /Users/kuno/code/pipeline/chrlog.txt
+
+#filebeat
+cd /Users/kuno/opt/filebeat-8.2.2-darwin-x86_64
+./filebeat -e
+
+#logstash
+/Users/kuno/opt/logstash-8.2.2/bin/logstash -f /Users/kuno/code/pipeline/elk/chrdeb.conf
+
+#Kafka
+cd /Users/kuno/opt/kafka_2.13-2.5.0
+./bin/zookeeper-server-start.sh ./config/zookeeper.properties
+./bin/kafka-server-start.sh ./config/server.properties
+
+./bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --topic [] --partitions 1 --replication-factor 1
+
+#filter
+/Users/kuno/anaconda3/bin/python /Users/kuno/code/pipeline/kafka/codec.py
+--------------------------------------------
+vim ./config/zookeeper.properties
+vim ./config/server.properties
+
+./bin/kafka-topics.sh --list --bootstrap-server localhost:9092
+./bin/kafka-topics.sh --describe --bootstrap-server localhost:9092
+
+./bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic []
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic []
